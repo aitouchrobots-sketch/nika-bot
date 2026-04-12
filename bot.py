@@ -5,7 +5,7 @@ import csv
 import io
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CommandHandler
-import anthropic
+from openai import OpenAI
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -186,18 +186,19 @@ def add_to_history(chat_id: int, role: str, content: str):
 #  ЗАПРОС К CLAUDE AI
 # ─────────────────────────────────────────────
 def ask_claude(chat_id: int, user_message: str) -> str:
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     
     add_to_history(chat_id, "user", user_message)
     
-    response = client.messages.create(
-        model="claude-opus-4-5",
+    messages = [{"role": "system", "content": build_system_prompt()}] + get_history(chat_id)
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
         max_tokens=1024,
-        system=build_system_prompt(),
-        messages=get_history(chat_id)
+        messages=messages
     )
     
-    reply = response.content[0].text
+    reply = response.choices[0].message.content
     add_to_history(chat_id, "assistant", reply)
     return reply
 
