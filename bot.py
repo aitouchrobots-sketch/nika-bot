@@ -167,6 +167,7 @@ def build_system_prompt() -> str:
 - На посторонние темы мягко отказывай: "Это вне моей экспедиционной компетенции 😄 Спроси меня о программе или участниках!"
 - Отвечай кратко и по делу. Используй эмодзи умеренно.
 - В групповом чате — отвечай только когда к тебе обращаются (упоминают "Ника" или "Ника,")
+- ВАЖНО: НЕ используй markdown-разметку (никаких звёздочек **, никаких решёток ##, никаких подчёркиваний __). Пиши обычным текстом с эмодзи.
 """
 
 # ─────────────────────────────────────────────
@@ -251,7 +252,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
         reply = ask_claude(chat_id, full_message)
-        await message.reply_text(reply)
+        await message.reply_text(reply, parse_mode=None)
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         await message.reply_text("Ой, что-то пошло не так 😅 Попробуй ещё раз!")
@@ -315,7 +316,7 @@ def main():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
         raise ValueError("Не задан TELEGRAM_BOT_TOKEN в переменных окружения!")
-    
+  
     
     app = Application.builder().token(token).build()
     
