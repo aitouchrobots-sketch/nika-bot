@@ -313,10 +313,6 @@ def main():
     if not token:
         raise ValueError("Не задан TELEGRAM_BOT_TOKEN в переменных окружения!")
     
-    anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not anthropic_key:
-        raise ValueError("Не задан ANTHROPIC_API_KEY в переменных окружения!")
-    
     app = Application.builder().token(token).build()
     
     app.add_handler(CommandHandler("start", start_command))
