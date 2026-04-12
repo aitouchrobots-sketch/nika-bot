@@ -129,10 +129,13 @@ def load_participants() -> list[dict]:
 # ─────────────────────────────────────────────
 def build_system_prompt() -> str:
     participants = load_participants()
-    participants_text = "\n".join([
-        f"- {p.get('Имя', p.get('name', '?'))} | Ниша: {p.get('Ниша', p.get('expertise', ''))} | Польза: {p.get('Чем может быть полезен/полезна', p.get('interests', ''))} | Цель: {p.get('Цель участия', '')} | TG: {p.get('Telegram', '')}"
-        for p in participants
-    ])
+    if participants:
+        participants_text = "\n".join([
+            f"- {p.get('Имя', p.get('name', '?'))} | Ниша: {p.get('Ниша', p.get('expertise', ''))} | Польза: {p.get('Чем может быть полезен/полезна', p.get('interests', ''))} | Цель: {p.get('Цель участия', '')} | TG: {p.get('Telegram', '')}"
+            for p in participants
+        ])
+    else:
+        participants_text = HARDCODED_PARTICIPANTS
     
     return f"""Ты — Ника, умный ИИ-помощник экспедиции предпринимателей на Мачу-Пикчу (8–17 апреля).
 Ты находишься в общем Telegram-чате участников группы.
@@ -312,6 +315,10 @@ def main():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
         raise ValueError("Не задан TELEGRAM_BOT_TOKEN в переменных окружения!")
+    
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not anthropic_key:
+        raise ValueError("Не задан ANTHROPIC_API_KEY в переменных окружения!")
     
     app = Application.builder().token(token).build()
     
